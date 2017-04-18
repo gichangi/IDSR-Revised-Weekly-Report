@@ -1,0 +1,612 @@
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script type="text/javascript">
+$(function() {
+		  var periods = dhis2.report.periods; // An array with period identifiers
+          var temperiod = dhis2.report.periods;
+          temperiod = temperiod.toString();
+          if (temperiod.length == 7) {
+              var post = Number(temperiod.substring((temperiod.length - 2))) + 1;
+              var period = temperiod.substring(0, (temperiod.length - 2)) + '' + post;
+          } else {
+              var post = Number(temperiod.substring((temperiod.length - 1))) + 1;
+              var period = temperiod.substring(0, (temperiod.length - 1)) + '' + post;
+          }
+
+           // document.getElementById("thisyear").innerHTML = temperiod.substring(0, 4);
+            //document.getElementById("lastyear").innerHTML = Number(temperiod.substring(0, 4)) - 1;
+
+            var thisyear = temperiod.substring(0, 4);
+            var weeklastyear = (Number(temperiod.substring(0, 4)) - 1) + period.substring(4, period.length);
+
+		  document.getElementById("weekno").innerHTML = period;
+
+				//alert("Report Period For The Report Is "+period);
+              jQuery.ajax({
+                  //url: '../api/organisationUnits.json?fields=id,name,code&level=2',
+				  url: '../api/organisationUnits/HfVjCurKxh2.json?fields=children[name,id]',
+                  type: 'GET',
+                  async: false,
+                  beforeSend: function(xhr) {
+                      //alert('sendingvalue');
+                  },
+                  success: function(responses) {
+				  //alert('size is '+responses.children.length);
+				  //console.log(responses.children);
+				 for (var a = 0; a < responses.children.length; a++) {
+					var countyname=responses.children[a].name;
+					var countyuid=responses.children[a].id;
+					//console.log("county"+responses.children[a].name);
+					if(responses.children[a].name!='Facility Issues'){
+						$('#weeklytable').append('<tr style="background-color:#00B0F0"> <td colspan="30">'+countyname+'</td> </tr>');
+						subcounty(countyname,countyuid,period);
+					}
+				  }
+                     weeklysummary(period,weeklastyear,thisyear);
+
+                  }
+              });
+
+
+})
+
+</script>
+<script type="text/javascript">// <![CDATA[
+   function subcounty(countyname,countyuid,period){
+       var idsrindicators=[
+        'aqtAtDtbywp', //Malaria cases
+        'vqyFNp0Tyjj', //Malaria Deaths
+		'SpdUqIVx8ik', //IDSR Tested for malaria No. Tested
+		'piQnwzWtwea',//IDSR Tested for malaria Positives
+		'cILf2i4484b', //IDSR malaria positivity
+		'mxWEOiayWem', //IDSR Cholera Total
+		'MqEYVvHFn4C', //IDSR Cholera Deaths
+		'SIKZR5L29QV', //IDSR Typhoid Total :cases
+		'vzVMT5xJLQR', //IDSR Typhoid Deaths
+		'SvFYd0EZdF1', //IDSR Dysentry Total
+		'ZpEL8teGmpy', //IDSR Dysentry Deaths
+		'MjpTjUPSLY6', //IDSR Measles cases
+		'iZa8X0R8DC2', //IDSR Measles Deaths
+		'rQT7Z4eJmQp', //IDSR Meningococcal
+		'pxZwZGa3S79',//IDSR Meningococcal Meningitis Deaths
+		'dwFMOqpWdJw',//IDSR Plague Total
+		'bZNWTQiGyPx',//IDSR Plague Deaths
+		'DHf4qRMuNVZ',//IDSR Yellow Fever Total
+		'kUMdI6Ip4rm',//IDSR Yellow Fever Deaths
+		'ntWgkwXCFp2',//IDSR Other Viral Hemorrhagic Fevers Total
+		'QMk6rJZtBT9',//IDSR Other Viral Hemorrhagic Fevers Deaths
+		'YrVngLCNhCN',//IDSR Acute Flaccid Paralysis 
+		'IPzqbhBXzYI',//IDSR Acute Flaccid Paralysis deaths
+		'hUIVHkS4Zt4',//IDSR Neonatal Tetanus Total
+		'Uaezmz9SzNy',//IDSR Neonatal Tetanus Deaths
+		'duEwnPpZTeJ',//AEFI Total
+		'AoNid8qa4iP',//AEFI Deaths
+		'QcCSmjw0E1t',//IDSR Acute Jaundice
+		'mdLORcOXNVC',//IDSR Acute Jaundice Deaths
+		'rNvGKtwbte6',//IDSR Dengue Total
+		'aoDMYH6STyu',//IDSR Dengue Deaths
+		'VIbr1Dhv7Zt',//IDSR Anthrax Cases
+		'RLzaFBwaWFN',//IDSR Anthrax Deaths
+		'XUmIT8vmtB8',//IDSR Acute Malnutrition Total
+		'SvGX6aqR44S',//IDSR Acute Malnutrition Deaths
+		'Iq9dK8PQGks',//IDSR Maternal deaths
+		'DyCmCMGhcaT',//IDSR Guinea Worm Disease Total
+		'hInp9Yu39ap',//IDSR Guinea Worm Disease Deaths
+		'WNovNDcvhHl',//IDSR Neonatal deaths Total
+		'WnKnWVYZ6eX',//IDSR Rabies Total
+		'rl6ivYvMVKJ',//IDSR Rabies Deaths
+		'FL1TjrtvExn',//IDSR Suspected MDR/XDR TB Total
+		'WQNqVsRWbje'//IDSR Suspected MDR/XDR TB Deaths
+       ]
+              jQuery.ajax({
+                  url: '../api/organisationUnits/'+countyuid+'.json?fields=children[name,id]',
+                  type: 'GET',
+                  async: false,
+                  beforeSend: function(xhr) {
+                      //alert('sendingvalue');
+                  },
+                  success: function(responses) {
+				  //alert('subcounty is'+responses.children.length);
+				  //console.log(responses.children);
+				 for (var a = 0; a < responses.children.length; a++) {
+					var subcountyname=responses.children[a].name;
+					var subcountyuid=responses.children[a].id;
+					var indicatorvalue=0;
+					//console.log(responses.children[a].name);
+					var rowdata='<tr style="background-color:#C4E8B7"><td>'+subcountyname+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp(vqyFNp0Tyjj)</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem(MqEYVvHFn4C)</td><td>SIKZR5L29QV(vzVMT5xJLQR)</td><td>SvFYd0EZdF1(ZpEL8teGmpy)</td><td>MjpTjUPSLY6(iZa8X0R8DC2)</td><td>rQT7Z4eJmQp(pxZwZGa3S79)</td><td>dwFMOqpWdJw(bZNWTQiGyPx)</td><td>DHf4qRMuNVZ(kUMdI6Ip4rm)</td><td>ntWgkwXCFp2(QMk6rJZtBT9)</td><td>YrVngLCNhCN(IPzqbhBXzYI)</td><td>hUIVHkS4Zt4(Uaezmz9SzNy)</td><td>duEwnPpZTeJ(AoNid8qa4iP)</td><td>QcCSmjw0E1t(mdLORcOXNVC)</td><td>rNvGKtwbte6(aoDMYH6STyu)</td><td>VIbr1Dhv7Zt(RLzaFBwaWFN)</td><td>XUmIT8vmtB8(SvGX6aqR44S)</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT(hInp9Yu39ap)</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX(rl6ivYvMVKJ)</td><td>FL1TjrtvExn(WQNqVsRWbje)</td></tr>';
+					rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+
+				  jQuery.ajax({
+					  url: '../api/analytics.json?dimension=dx:zJrL4HQqYmD.EXPECTED_REPORTS;zJrL4HQqYmD.ACTUAL_REPORTS;zJrL4HQqYmD.REPORTING_RATE;zJrL4HQqYmD.REPORTING_RATE_ON_TIME;&dimension=pe:'+period+'&dimension=ou:'+subcountyuid,
+					  type: 'GET',
+					  async: false,
+					  beforeSend: function(xhr) {
+						  //alert('sendingvalue');
+					  },
+					  success: function(responses) {
+					  ////console.log(responses.rows.length);
+						if(responses.rows.length>=1){
+						//console.log("sizeofrows"+responses.rows.length);
+							for(var dnr=0; dnr<=responses.rows.length-1; dnr++){
+								if(responses.rows[dnr][0]=='zJrL4HQqYmD.ACTUAL_REPORTS' ){
+								////console.log("reportvalue"+Math.round(responses.rows[dnr][3])<=0);
+									if(Math.round(responses.rows[dnr][3])<=0){
+										rowdata='<tr style="background-color:#C4E8B7"><td>'+subcountyname+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem</td><td>SIKZR5L29QV</td><td>SvFYd0EZdF1</td><td>MjpTjUPSLY6</td><td>rQT7Z4eJmQp</td><td>dwFMOqpWdJw</td><td>DHf4qRMuNVZ</td><td>ntWgkwXCFp2</td><td>YrVngLCNhCN</td><td>hUIVHkS4Zt4</td><td>duEwnPpZTeJ</td><td>QcCSmjw0E1t</td><td>rNvGKtwbte6</td><td>VIbr1Dhv7Zt</td><td>XUmIT8vmtB8</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX</td><td>FL1TjrtvExn</td></tr>';										
+										rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+										rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', 'DNR');
+										rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', 'DNR');
+										rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', 'DNR');
+										rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', 'DNR');
+										for(var s=0; s<=idsrindicators.length-1; s++){
+											rowdata = rowdata.replace(idsrindicators[s], 'DNR');
+										}										
+									}
+								
+								}
+							}
+							for(var rr=0; rr<=responses.rows.length-1; rr++){
+							    //console.log("rr value"+rr+" rrname"+responses.rows[rr][0]+" rrresult"+responses.rows[rr][3]);
+								rowdata = rowdata.replace(responses.rows[rr][0]+"S", Math.round(responses.rows[rr][3]));
+								////console.log(rowdata);
+							}
+							rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', '0');
+							rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', '0');
+							rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', '0');
+							rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', '0');
+						}else{   
+							rowdata='<tr style="background-color:#C4E8B7"><td>'+subcountyname+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem</td><td>SIKZR5L29QV</td><td>SvFYd0EZdF1</td><td>MjpTjUPSLY6</td><td>rQT7Z4eJmQp</td><td>dwFMOqpWdJw</td><td>DHf4qRMuNVZ</td><td>ntWgkwXCFp2</td><td>YrVngLCNhCN</td><td>hUIVHkS4Zt4</td><td>duEwnPpZTeJ</td><td>QcCSmjw0E1t</td><td>rNvGKtwbte6</td><td>VIbr1Dhv7Zt</td><td>XUmIT8vmtB8</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX</td><td>FL1TjrtvExn</td></tr>';					
+							rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+							rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', 'DNR');
+							rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', 'DNR');
+							rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', 'DNR');
+							rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', 'DNR');
+							for(var s=0; s<=idsrindicators.length-1; s++){
+
+								rowdata = rowdata.replace(idsrindicators[s], 'DNR');
+							}
+						}
+
+		
+					  }
+				  });
+					//Generateindicatorlist
+					var indicatorlist=""+idsrindicators[0];
+					for(var s=1; s<=idsrindicators.length-1; s++){
+						indicatorlist=indicatorlist+';'+idsrindicators[s];
+					}
+
+                        jQuery.ajax({
+                             url:'../api/analytics.json?dimension=dx:'+indicatorlist+'&dimension=ou:'+subcountyuid+'&dimension=pe:'+period+'&skipMeta=true',
+                             type: 'GET',
+                             async: false,
+                             beforeSend: function(xhr){
+                                ////console.log("indicator")
+                             },
+                             success: function(responses){
+                                 ////console.log(responses.rows.length);
+                                 if(responses.rows.length>=0){
+                                     ////console.log(responses.rows[0][0]);
+									 for(var aa=0; aa<=responses.rows.length-1; aa++){
+										indicatorvalue=responses.rows[aa][3];
+										rowdata = rowdata.replace(idsrindicators[aa], Math.round(responses.rows[aa][3]));
+										
+									 }
+                                     
+                                    ////console.log(rowdata);
+                                 }
+                                 
+                             }
+                        })					
+					
+					for(var s=0; s<=idsrindicators.length-1; s++){
+						rowdata = rowdata.replace(idsrindicators[s], '0');
+					}
+					$('#weeklytable').append(rowdata);					
+
+				  }
+	
+                  }
+              });
+   }
+   
+</script>
+
+
+
+
+
+<script type="text/javascript">// <![CDATA[
+function weeklysummary(period,weeklastyear,thisyear){
+    //alert("testing");
+    var idsrindicators=[
+        'aqtAtDtbywp', //Malaria cases
+        'vqyFNp0Tyjj', //Malaria Deaths
+        'SpdUqIVx8ik', //IDSR Tested for malaria No. Tested
+        'piQnwzWtwea',//IDSR Tested for malaria Positives
+        'cILf2i4484b', //IDSR malaria positivity
+        'mxWEOiayWem', //IDSR Cholera Total
+        'MqEYVvHFn4C', //IDSR Cholera Deaths
+        'SIKZR5L29QV', //IDSR Typhoid Total :cases
+        'vzVMT5xJLQR', //IDSR Typhoid Deaths
+        'SvFYd0EZdF1', //IDSR Dysentry Total
+        'ZpEL8teGmpy', //IDSR Dysentry Deaths
+        'MjpTjUPSLY6', //IDSR Measles cases
+        'iZa8X0R8DC2', //IDSR Measles Deaths
+        'rQT7Z4eJmQp', //IDSR Meningococcal
+        'pxZwZGa3S79',//IDSR Meningococcal Meningitis Deaths
+        'dwFMOqpWdJw',//IDSR Plague Total
+        'bZNWTQiGyPx',//IDSR Plague Deaths
+        'DHf4qRMuNVZ',//IDSR Yellow Fever Total
+        'kUMdI6Ip4rm',//IDSR Yellow Fever Deaths
+        'ntWgkwXCFp2',//IDSR Other Viral Hemorrhagic Fevers Total
+        'QMk6rJZtBT9',//IDSR Other Viral Hemorrhagic Fevers Deaths
+        'YrVngLCNhCN',//IDSR Acute Flaccid Paralysis
+        'IPzqbhBXzYI',//IDSR Acute Flaccid Paralysis deaths
+        'hUIVHkS4Zt4',//IDSR Neonatal Tetanus Total
+        'Uaezmz9SzNy',//IDSR Neonatal Tetanus Deaths
+        'duEwnPpZTeJ',//AEFI Total
+        'AoNid8qa4iP',//AEFI Deaths
+        'QcCSmjw0E1t',//IDSR Acute Jaundice
+        'mdLORcOXNVC',//IDSR Acute Jaundice Deaths
+        'rNvGKtwbte6',//IDSR Dengue Total
+        'aoDMYH6STyu',//IDSR Dengue Deaths
+        'VIbr1Dhv7Zt',//IDSR Anthrax Cases
+        'RLzaFBwaWFN',//IDSR Anthrax Deaths
+        'XUmIT8vmtB8',//IDSR Acute Malnutrition Total
+        'SvGX6aqR44S',//IDSR Acute Malnutrition Deaths
+        'Iq9dK8PQGks',//IDSR Maternal deaths
+        'DyCmCMGhcaT',//IDSR Guinea Worm Disease Total
+        'hInp9Yu39ap',//IDSR Guinea Worm Disease Deaths
+        'WNovNDcvhHl',//IDSR Neonatal deaths Total
+        'WnKnWVYZ6eX',//IDSR Rabies Total
+        'rl6ivYvMVKJ',//IDSR Rabies Deaths
+        'FL1TjrtvExn',//IDSR Suspected MDR/XDR TB Total
+        'WQNqVsRWbje'//IDSR Suspected MDR/XDR TB Deaths
+    ]
+    jQuery.ajax({
+        url: '../api/organisationUnits.json?filter=id:eq:HfVjCurKxh2&fields=name,id',
+        type: 'GET',
+        async: false,
+        beforeSend: function(xhr) {
+            //alert('sendingvalue');
+        },
+        success: function(responses) {
+            //alert('subcounty is'+responses.children.length);
+            //console.log(responses.organisationUnits);
+            var summaryperiods=[
+                ["WEEK SUMMARY ",period],
+                ["WEEK SUMMARY ",weeklastyear],
+                ["Years Cummulative Summary ",thisyear]
+            ];
+            console.log("periods"+summaryperiods[0]);
+            var subcountyname=responses.organisationUnits[0].name;
+            var subcountyuid=responses.organisationUnits[0].id;
+            for (var a = 0; a <=2; a++) {
+			console.log("testone");
+			    var cummulativeperiod=summaryperiods[a][0]+" "+summaryperiods[a][1];
+                var indicatorvalue=0;
+                //console.log(responses.organisationUnits[0].name);
+                var rowdata='<tr style="background-color:#C4E8B7"><td>'+cummulativeperiod+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp(vqyFNp0Tyjj)</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem(MqEYVvHFn4C)</td><td>SIKZR5L29QV(vzVMT5xJLQR)</td><td>SvFYd0EZdF1(ZpEL8teGmpy)</td><td>MjpTjUPSLY6(iZa8X0R8DC2)</td><td>rQT7Z4eJmQp(pxZwZGa3S79)</td><td>dwFMOqpWdJw(bZNWTQiGyPx)</td><td>DHf4qRMuNVZ(kUMdI6Ip4rm)</td><td>ntWgkwXCFp2(QMk6rJZtBT9)</td><td>YrVngLCNhCN(IPzqbhBXzYI)</td><td>hUIVHkS4Zt4(Uaezmz9SzNy)</td><td>duEwnPpZTeJ(AoNid8qa4iP)</td><td>QcCSmjw0E1t(mdLORcOXNVC)</td><td>rNvGKtwbte6(aoDMYH6STyu)</td><td>VIbr1Dhv7Zt(RLzaFBwaWFN)</td><td>XUmIT8vmtB8(SvGX6aqR44S)</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT(hInp9Yu39ap)</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX(rl6ivYvMVKJ)</td><td>FL1TjrtvExn(WQNqVsRWbje)</td></tr>';
+                rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+
+                jQuery.ajax({
+                    url: '../api/analytics.json?dimension=dx:zJrL4HQqYmD.EXPECTED_REPORTS;zJrL4HQqYmD.ACTUAL_REPORTS;zJrL4HQqYmD.REPORTING_RATE;zJrL4HQqYmD.REPORTING_RATE_ON_TIME;&dimension=pe:'+summaryperiods[a][1]+'&dimension=ou:HfVjCurKxh2',
+                    type: 'GET',
+                    async: false,
+                    beforeSend: function(xhr) {
+                        //alert('sendingvalue');
+                    },
+                    success: function(responses) {
+                        ////console.log(responses.rows.length);
+                        if(responses.rows.length>=1){
+                            //console.log("sizeofrows"+responses.rows.length);
+                            for(var dnr=0; dnr<=responses.rows.length-1; dnr++){
+                                if(responses.rows[dnr][0]=='zJrL4HQqYmD.ACTUAL_REPORTS' ){
+                                    ////console.log("reportvalue"+Math.round(responses.rows[dnr][3])<=0);
+                                    if(Math.round(responses.rows[dnr][3])<=0){
+                                        rowdata='<tr style="background-color:#C4E8B7"><td>'+subcountyname+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem</td><td>SIKZR5L29QV</td><td>SvFYd0EZdF1</td><td>MjpTjUPSLY6</td><td>rQT7Z4eJmQp</td><td>dwFMOqpWdJw</td><td>DHf4qRMuNVZ</td><td>ntWgkwXCFp2</td><td>YrVngLCNhCN</td><td>hUIVHkS4Zt4</td><td>duEwnPpZTeJ</td><td>QcCSmjw0E1t</td><td>rNvGKtwbte6</td><td>VIbr1Dhv7Zt</td><td>XUmIT8vmtB8</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX</td><td>FL1TjrtvExn</td></tr>';
+                                        rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+                                        rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', 'DNR');
+                                        rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', 'DNR');
+                                        rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', 'DNR');
+                                        rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', 'DNR');
+                                        for(var s=0; s<=idsrindicators.length-1; s++){
+                                            rowdata = rowdata.replace(idsrindicators[s], 'DNR');
+                                        }
+                                    }
+
+                                }
+                            }
+                            for(var rr=0; rr<=responses.rows.length-1; rr++){
+                                //console.log("rr value"+rr+" rrname"+responses.rows[rr][0]+" rrresult"+responses.rows[rr][3]);
+                                rowdata = rowdata.replace(responses.rows[rr][0]+"S", Math.round(responses.rows[rr][3]));
+                                ////console.log(rowdata);
+                            }
+                            rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', '0');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', '0');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', '0');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', '0');
+                        }else{
+                            rowdata='<tr style="background-color:#C4E8B7"><td>'+subcountyname+'</td><td>subcounty.EXPECTED_REPORTSS</td><td>subcounty.ACTUAL_REPORTSS</td><td>subcounty.REPORTING_RATES</td><td>subcounty.REPORTING_RATE_ON_TIMES</td><td>aqtAtDtbywp</td><td>SpdUqIVx8ik</td><td>piQnwzWtwea</td><td>cILf2i4484b</td><td>mxWEOiayWem</td><td>SIKZR5L29QV</td><td>SvFYd0EZdF1</td><td>MjpTjUPSLY6</td><td>rQT7Z4eJmQp</td><td>dwFMOqpWdJw</td><td>DHf4qRMuNVZ</td><td>ntWgkwXCFp2</td><td>YrVngLCNhCN</td><td>hUIVHkS4Zt4</td><td>duEwnPpZTeJ</td><td>QcCSmjw0E1t</td><td>rNvGKtwbte6</td><td>VIbr1Dhv7Zt</td><td>XUmIT8vmtB8</td><td>Iq9dK8PQGks</td><td>DyCmCMGhcaT</td><td>WNovNDcvhHl</td><td>WnKnWVYZ6eX</td><td>FL1TjrtvExn</td></tr>';
+                            rowdata = rowdata.replace(/subcounty/g, "zJrL4HQqYmD");
+                            rowdata = rowdata.replace('zJrL4HQqYmD.EXPECTED_REPORTSS', 'DNR');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.ACTUAL_REPORTSS', 'DNR');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATES', 'DNR');
+                            rowdata = rowdata.replace('zJrL4HQqYmD.REPORTING_RATE_ON_TIMES', 'DNR');
+                            for(var s=0; s<=idsrindicators.length-1; s++){
+
+                                rowdata = rowdata.replace(idsrindicators[s], 'DNR');
+                            }
+                        }
+
+
+                    }
+                });
+                //Generateindicatorlist
+                var indicatorlist=""+idsrindicators[0];
+                for(var s=1; s<=idsrindicators.length-1; s++){
+                    indicatorlist=indicatorlist+';'+idsrindicators[s];
+                }
+
+                jQuery.ajax({
+                    url:'../api/analytics.json?dimension=dx:'+indicatorlist+'&dimension=ou:'+subcountyuid+'&dimension=pe:'+summaryperiods[a][1]+'&skipMeta=true',
+                    type: 'GET',
+                    async: false,
+                    beforeSend: function(xhr){
+                        ////console.log("indicator")
+                    },
+                    success: function(responses){
+                        ////console.log(responses.rows.length);
+                        if(responses.rows.length>=0){
+                            ////console.log(responses.rows[0][0]);
+                            for(var aa=0; aa<=responses.rows.length-1; aa++){
+                                indicatorvalue=responses.rows[aa][3];
+                                rowdata = rowdata.replace(idsrindicators[aa], Math.round(responses.rows[aa][3]));
+
+                            }
+                        }
+
+                    }
+                })
+
+                for(var s=0; s<=idsrindicators.length-1; s++){
+                    rowdata = rowdata.replace(idsrindicators[s], '0');
+                }
+                $('#weeklysummary').append(rowdata);
+
+            }
+
+        }
+    });
+}
+
+</script>
+
+
+
+
+
+<style>
+
+table, th, td, thead {
+    border: 1px solid black;
+	border-spacing: 0px;
+}
+</style>
+
+
+<html>
+<body>
+
+<div style="text-align:center; font-size:28px; font-weight:bold"> IDSR WEEKLY EPIDEMIOLOGICAL BULLETIN FOR: <div id="weekno"> </div> </div>
+
+<table   style="width:500px;">
+		<thead style="background-color:#F5D2AE">
+		<tr>
+         <td class="column1 style26 s style27" rowspan="2">
+            <div style="width: 120px;">County</div>
+         </td>
+         <td class="column2 style26 s style27" rowspan="2">
+            <div>Reports Expected</div>
+         </td>
+         <td class="column3 style26 s style27" rowspan="2">
+            <div>Reports Received</div>
+         </td>
+         <td class="column4 style26 s style27" rowspan="2">
+            <div style="width: 50px;">%RR</div>
+         </td>
+         <td class="column5 style26 s style27" rowspan="2">
+            <div>%Timely</div>
+         </td>
+         <td class="column6 style26 s style27" rowspan="2">
+            <div>Malaria</div>
+         </td>
+         <td class="column7 style23 s style25" colspan="3" style="text-align:center">
+            <div>Malaria Indicators</div>
+         </td>
+         <td class="column10 style26 s style27" rowspan="2">
+            <div>Cholera</div>
+         </td>
+         <td class="column11 style26 s style27" rowspan="2">
+            <div>Typhoid</div>
+         </td>
+         <td class="column12 style26 s style27" rowspan="2">
+            <div>Dysentery</div>
+         </td>
+         <td class="column13 style26 s style27" rowspan="2">
+            <div>Measles</div>
+         </td>
+         <td class="column14 style28 s style29" rowspan="2">
+            <div>Meningitis (Meningococcal)</div>
+         </td>
+         <td class="column15 style26 s style27" rowspan="2">
+            <div>Plague</div>
+         </td>
+         <td class="column16 style26 s style27" rowspan="2">
+            <div>Yellow Fever</div>
+         </td>
+         <td class="column17 style26 s style27" rowspan="2">
+            <div>Other VHF</div>
+         </td>
+         <td class="column18 style26 s style27" rowspan="2">
+            <div>AFP for Poliomyelitis</div>
+         </td>
+         <td class="column19 style26 s style27" rowspan="2">
+            <div>Neonatal Tetanus</div>
+         </td>
+         <td class="column20 style26 s style27" rowspan="2">
+            <div style="width: 50px;">AEFI</div>
+         </td>
+         <td class="column21 style26 s style27" rowspan="2">
+            <div>Acute Jaundice</div>
+         </td>
+         <td class="column22 style30 s style31" rowspan="2">
+            <div>Dengue</div>
+         </td>
+         <td class="column23 style26 s style27" rowspan="2">
+            <div>Anthrax</div>
+         </td>
+         <td class="column24 style26 s style27" rowspan="2">
+            <div>Acute Malnutrition</div>
+         </td>
+         <td class="column25 style26 s style27" rowspan="2">
+            <div>Maternal Deaths</div>
+         </td>
+         <td class="column27 style26 s style27" rowspan="2">
+            <div>Guinea Worm</div>
+         </td>
+         <td class="column28 style26 s style27" rowspan="2">
+            <div>Neonatal Deaths</div>
+         </td>
+         <td class="column29 style26 s style27" rowspan="2">
+            <div>Rabies</div>
+         </td>
+         <td class="column30 style28 s style29" rowspan="2">
+            <div>Suspected MDR/XDR TB</div>
+         </td>
+		 </tr>
+		 <tr>
+         <td class="column28 style26 s style27">
+            <div>Tested</div>
+         </td>
+         <td class="column29 style26 s style27" >
+            <div>Positive</div>
+         </td>
+         <td class="column30 style28 s style29" >
+            <div>Positivity</div>
+         </td>		 
+		 </tr>
+		 </thead>
+	<tbody id='weeklytable'>
+
+
+	</tbody>
+</table>
+
+
+
+<div style="text-align:center; font-size:28px; font-weight:bold"> IDSR EPIDEMIOLOGICAL SUMMARY FOR: <div id="currentyear"> </div> </div>
+
+<table   style="width:500px;">
+    <thead style="background-color:#F5D2AE">
+    <tr>
+        <td class="column1 style26 s style27" rowspan="2">
+            <div style="width: 120px;"> </div>
+        </td>
+        <td class="column2 style26 s style27" rowspan="2">
+            <div>Reports Expected</div>
+        </td>
+        <td class="column3 style26 s style27" rowspan="2">
+            <div>Reports Received</div>
+        </td>
+        <td class="column4 style26 s style27" rowspan="2">
+            <div style="width: 50px;">%RR</div>
+        </td>
+        <td class="column5 style26 s style27" rowspan="2">
+            <div>%Timely</div>
+        </td>
+        <td class="column6 style26 s style27" rowspan="2">
+            <div>Malaria</div>
+        </td>
+        <td class="column7 style23 s style25" colspan="3" style="text-align:center">
+            <div>Malaria Indicators</div>
+        </td>
+        <td class="column10 style26 s style27" rowspan="2">
+            <div>Cholera</div>
+        </td>
+        <td class="column11 style26 s style27" rowspan="2">
+            <div>Typhoid</div>
+        </td>
+        <td class="column12 style26 s style27" rowspan="2">
+            <div>Dysentery</div>
+        </td>
+        <td class="column13 style26 s style27" rowspan="2">
+            <div>Measles</div>
+        </td>
+        <td class="column14 style28 s style29" rowspan="2">
+            <div>Meningitis (Meningococcal)</div>
+        </td>
+        <td class="column15 style26 s style27" rowspan="2">
+            <div>Plague</div>
+        </td>
+        <td class="column16 style26 s style27" rowspan="2">
+            <div>Yellow Fever</div>
+        </td>
+        <td class="column17 style26 s style27" rowspan="2">
+            <div>Other VHF</div>
+        </td>
+        <td class="column18 style26 s style27" rowspan="2">
+            <div>AFP for Poliomyelitis</div>
+        </td>
+        <td class="column19 style26 s style27" rowspan="2">
+            <div>Neonatal Tetanus</div>
+        </td>
+        <td class="column20 style26 s style27" rowspan="2">
+            <div style="width: 50px;">AEFI</div>
+        </td>
+        <td class="column21 style26 s style27" rowspan="2">
+            <div>Acute Jaundice</div>
+        </td>
+        <td class="column22 style30 s style31" rowspan="2">
+            <div>Dengue</div>
+        </td>
+        <td class="column23 style26 s style27" rowspan="2">
+            <div>Anthrax</div>
+        </td>
+        <td class="column24 style26 s style27" rowspan="2">
+            <div>Acute Malnutrition</div>
+        </td>
+        <td class="column25 style26 s style27" rowspan="2">
+            <div>Maternal Deaths</div>
+        </td>
+        <td class="column27 style26 s style27" rowspan="2">
+            <div>Guinea Worm</div>
+        </td>
+        <td class="column28 style26 s style27" rowspan="2">
+            <div>Neonatal Deaths</div>
+        </td>
+        <td class="column29 style26 s style27" rowspan="2">
+            <div>Rabies</div>
+        </td>
+        <td class="column30 style28 s style29" rowspan="2">
+            <div>Suspected MDR/XDR TB</div>
+        </td>
+    </tr>
+    <tr>
+        <td class="column28 style26 s style27">
+            <div>Tested</div>
+        </td>
+        <td class="column29 style26 s style27" >
+            <div>Positive</div>
+        </td>
+        <td class="column30 style28 s style29" >
+            <div>Positivity</div>
+        </td>
+    </tr>
+    </thead>
+    <tbody id='weeklysummary'>
+
+    </tbody>
+</table>
+
+</body>
+</html>
